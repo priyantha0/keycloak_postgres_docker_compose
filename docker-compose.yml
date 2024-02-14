@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  kc-base-postgres:
+    image: "postgres:16-bullseye"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kcbase
+      PGDATA: /data/postgres
+    volumes:
+       - kc-base-postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+  
+  kc-base:
+    image: quay.io/keycloak/keycloak:23.0
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_PORT: 5432
+      DB_DATABASE: kcbase
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 9091:8080
+    depends_on:
+      - kc-base-postgres
+    command:
+      - start-dev
+volumes:
+  kc-base-postgres:
